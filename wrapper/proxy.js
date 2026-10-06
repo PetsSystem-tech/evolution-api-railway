@@ -20,7 +20,12 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (req.url === '/' && (req.method === 'GET' || req.method === 'HEAD')) {
+  const acceptsHtml = (req.headers.accept || '').includes('text/html');
+  if (
+    req.url === '/' &&
+    (req.method === 'GET' || req.method === 'HEAD') &&
+    acceptsHtml
+  ) {
     res.writeHead(302, { Location: '/manager' });
     res.end();
     return;
@@ -34,5 +39,7 @@ server.on('upgrade', (req, socket, head) => {
 });
 
 server.listen(PUBLIC_PORT, () => {
-  console.log(`[wrapper] listening on ${PUBLIC_PORT}, proxying to ${TARGET}, healthcheck /health, redirecting / to /manager`);
+  console.log(
+    `[wrapper] listening on ${PUBLIC_PORT}, proxying to ${TARGET}, healthcheck /health, browser / -> /manager`
+  );
 });
