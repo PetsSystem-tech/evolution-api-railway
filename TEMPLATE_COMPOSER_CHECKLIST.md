@@ -7,9 +7,9 @@ Apply these settings in the Railway template composer when generating the templa
 ## 1. Healthcheck Settings
 
 ### evolution-api
-- **Healthcheck Path:** `/`
+- **Healthcheck Path:** `/health`
 - **Healthcheck Timeout:** `120` seconds
-- **Variable:** `RAILWAY_HEALTHCHECK_PATH` = `/` with description
+- **Variable:** `RAILWAY_HEALTHCHECK_PATH` = `/health` with description
 
 ### postgres / redis
 - No public port exposed — no healthcheck needed (internal services only)
@@ -31,9 +31,9 @@ Apply these settings in the Railway template composer when generating the templa
 | `SERVER_URL` | `https://${{RAILWAY_PUBLIC_DOMAIN}}` | No | Public URL for webhook callbacks and QR metadata. |
 | `AUTHENTICATION_API_KEY` | **Currently a literal test key (`8cc21b80...`), NOT the secret() syntax below — you must manually replace it with `${{secret(64, "abcdef0123456789")}}` in the composer, or every future deployer gets this exact same hardcoded key** | No | Global API key required in the `apikey` header on every request. Auto-generated. |
 | `LANGUAGE` | `en` | **Yes** — this is a cosmetic default, not required for the app to function | Default language for instance-facing messages. |
-| `RAILWAY_HEALTHCHECK_PATH` | `/` | No | Endpoint Railway uses to verify the service is healthy. |
+| `RAILWAY_HEALTHCHECK_PATH` | `/health` | No | Endpoint Railway uses to verify the service is healthy. |
 
-**Correction on an earlier version of this table:** it listed `PORT` / `SERVER_PORT` as if it were a composer variable — **it is not.** As of the 2026-07-25 `/manager` redirect fix (see section 6 below), the real port scheme is `API_INTERNAL_PORT=8081` (the actual Evolution API process, internal-only) and `WRAPPER_PORT=8080` (the redirect/proxy wrapper that's actually public-facing) — both are build-time `ENV` instructions in the Dockerfile, invisible to `railway variable set`/the composer's Variables panel entirely; you will not see or need to set either there. It also previously listed `RAILWAY_HEALTHCHECK_PATH` as already set — it genuinely wasn't (confirmed via CLI it was missing), so it was added via `railway variable set RAILWAY_HEALTHCHECK_PATH=/`, and all 8 rows above are verified directly against a fresh `railway variables` dump rather than reused from memory.
+**Correction on an earlier version of this table:** it listed `PORT` / `SERVER_PORT` as if it were a composer variable — **it is not.** As of the 2026-07-25 `/manager` redirect fix (see section 6 below), the real port scheme is `API_INTERNAL_PORT=8081` (the actual Evolution API process, internal-only) and `WRAPPER_PORT=8080` (the redirect/proxy wrapper that's actually public-facing) — both are build-time `ENV` instructions in the Dockerfile, invisible to `railway variable set`/the composer's Variables panel entirely; you will not see or need to set either there. It also previously listed `RAILWAY_HEALTHCHECK_PATH` as already set — it genuinely wasn't (confirmed via CLI it was missing), so it was added via `railway variable set RAILWAY_HEALTHCHECK_PATH=/health`, and all 8 rows above are verified directly against a fresh `railway variables` dump rather than reused from memory.
 
 ### Postgres Variables (this template uses Railway's managed Postgres plugin — `railwayapp-templates/postgres-ssl`, added via `railway add --database postgres`, NOT a custom Docker service. All 13 of these appear in the composer's "Postgres" service card and each needs a description. "Value" = what's already in the Variable Value field, or what to type in if it's showing empty. "Mark Optional?" = whether to check the "Mark as optional" checkbox, per SKILL.md's rule: any variable you're giving an explicit default to should be optional so Railway can still let a deployer override it.)
 
